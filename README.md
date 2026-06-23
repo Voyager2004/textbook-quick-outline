@@ -1,16 +1,16 @@
 # Textbook Quick Outline
 
-`textbook-quick-outline` is a Codex skill for turning textbook PDFs and course PDFs into printable, page-grounded quick-reference manuals for open-book study.
+`textbook-quick-outline` 是一个 Codex Skill，用于把教材 PDF、课程 PDF 或扫描版教材整理成适合打印的“开卷考试快查手册”。
 
-It helps an agent:
+它的目标不是简单 OCR 或全文摘录，而是帮助 Codex 稳定复现一套教材整理流程：
 
-- decide whether OCR is needed;
-- prepare reproducible PDF source packages;
-- preserve printed textbook page numbers instead of relying on PDF indexes;
-- extract chapter trees, key terms, workflows, formulas, comparisons, and exercises;
-- export dense Markdown handbooks to narrow-margin DOCX files.
+- 判断 PDF 是否需要 OCR；
+- 生成可复现的 PDF 源材料包；
+- 按教材实际印刷页码建立索引，而不是直接使用 PDF 页码；
+- 抽取章节目录树、重点名词、流程步骤、分类对比、公式、协议过程和课后题；
+- 将最终 Markdown 快查手册导出为窄页边距 DOCX，方便打印和开卷考试翻查。
 
-## Contents
+## 文件结构
 
 ```text
 textbook-quick-outline/
@@ -22,21 +22,21 @@ textbook-quick-outline/
     └── markdown_to_narrow_docx.py
 ```
 
-## Safety Defaults
+## 安全约束
 
-The skill is designed to avoid hidden environment changes:
+这个 Skill 默认避免隐藏下载和污染全局环境：
 
-- OCR model weights are not downloaded silently.
-- Before OCR, the agent must ask whether to download PaddleOCR, MinerU, ModelScope, Hugging Face, or other model files.
-- Python packages should be installed only in temporary or project-local virtual environments.
-- Do not install packages into the global/system interpreter.
-- Do not use `pip install --user`.
+- 不会静默下载 OCR 模型权重。
+- OCR 前必须询问用户是否下载 PaddleOCR、MinerU、ModelScope、Hugging Face 或其他模型文件。
+- Python 依赖只能安装到临时环境或项目局部虚拟环境。
+- 不要把依赖安装到全局/system Python。
+- 不要使用 `pip install --user`。
 
-`scripts/prepare_textbook_sources.py` does not run OCR and does not download model weights. It only prepares source files for later OCR or no-OCR processing.
+`scripts/prepare_textbook_sources.py` 本身不执行 OCR，也不会下载模型权重。它只负责准备后续 OCR 或非 OCR 处理所需的稳定输入。
 
-## Source Preparation
+## 准备教材源材料
 
-Prepare a reproducible source package from a PDF:
+从教材 PDF 生成可复现的源材料包：
 
 ```bash
 python scripts/prepare_textbook_sources.py textbook.pdf workdir \
@@ -46,7 +46,7 @@ python scripts/prepare_textbook_sources.py textbook.pdf workdir \
   --render-samples auto
 ```
 
-For scanned PDFs or OCR preparation:
+扫描版教材或准备 OCR 时：
 
 ```bash
 python scripts/prepare_textbook_sources.py textbook.pdf workdir \
@@ -56,7 +56,7 @@ python scripts/prepare_textbook_sources.py textbook.pdf workdir \
   --render-all
 ```
 
-For PDFs where each PDF page contains a left/right textbook spread:
+如果一个 PDF 页面包含左右两页教材：
 
 ```bash
 python scripts/prepare_textbook_sources.py textbook.pdf workdir \
@@ -67,57 +67,57 @@ python scripts/prepare_textbook_sources.py textbook.pdf workdir \
   --render-all
 ```
 
-The script writes:
+脚本会生成：
 
-- `manifest.json`: run metadata, page count, extraction stats, rendered pages, and tool paths;
-- `page_map.csv`: PDF page/source ID to printed page mapping;
-- `RUN_COMMAND.txt`: the command used for reproducibility;
-- `page_texts_raw/`: per-page extracted text when text extraction is enabled;
-- `page_images_sample/` or `page_images_all/`: rendered PNG pages for inspection or OCR.
+- `manifest.json`：运行元数据、页数、抽取统计、渲染页、工具路径等；
+- `page_map.csv`：PDF 页面/source ID 与教材印刷页码的映射；
+- `RUN_COMMAND.txt`：本次运行命令，便于复现；
+- `page_texts_raw/`：逐页抽取文本；
+- `page_images_sample/` 或 `page_images_all/`：用于检查或 OCR 的页面图片。
 
-## DOCX Export
+## 导出 DOCX
 
-Convert a final Markdown handbook to a printable DOCX:
+将最终 Markdown 快查手册导出为可打印 DOCX：
 
 ```bash
 python scripts/markdown_to_narrow_docx.py quick-outline.md quick-outline.docx
 ```
 
-The DOCX exporter uses narrow margins and OS-aware Chinese font defaults:
+DOCX 导出脚本使用窄页边距，并按操作系统选择中文字体默认值：
 
-- Windows: `SimSun`
-- macOS: `Songti SC`
-- Linux: `Noto Serif CJK SC`
+- Windows：`SimSun`
+- macOS：`Songti SC`
+- Linux：`Noto Serif CJK SC`
 
-Override the font when needed:
+如果默认字体不可用，可以手动指定：
 
 ```bash
 python scripts/markdown_to_narrow_docx.py quick-outline.md quick-outline.docx --font "Noto Serif CJK SC"
 ```
 
-## Dependencies
+## 依赖
 
-For PDF source preparation:
+PDF 源材料准备：
 
 - Python 3.10+
-- Poppler tools recommended: `pdfinfo`, `pdftotext`, `pdftoppm`
-- Optional fallback for page counting: `pypdf` or `PyPDF2`
-- Optional spread image splitting: `Pillow`
+- 推荐安装 Poppler 工具：`pdfinfo`、`pdftotext`、`pdftoppm`
+- 可选页数兜底：`pypdf` 或 `PyPDF2`
+- 可选双页图片切分：`Pillow`
 
-For DOCX export:
+DOCX 导出：
 
 - Python 3.10+
 - `python-docx`
 
-Install dependencies in a temporary or project-local virtual environment, not globally.
+请把依赖安装在临时环境或项目局部虚拟环境中，不要安装到全局 Python。
 
-## Using As A Codex Skill
+## 作为 Codex Skill 使用
 
-Copy or symlink this directory into your Codex skills directory:
+将本目录复制或软链接到 Codex skills 目录：
 
 ```bash
 mkdir -p ~/.codex/skills
 cp -R textbook-quick-outline ~/.codex/skills/
 ```
 
-Then ask Codex to use `$textbook-quick-outline` for a textbook PDF quick-reference workflow.
+之后可以让 Codex 使用 `$textbook-quick-outline`，针对某本教材 PDF 生成开卷考试快查手册。
