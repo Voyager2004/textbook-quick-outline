@@ -17,10 +17,16 @@ textbook-quick-outline/
 ├── SKILL.md
 ├── agents/
 │   └── openai.yaml
+├── examples/
+│   └── 网络安全教材开卷快查手册.pdf
 └── scripts/
     ├── prepare_textbook_sources.py
     └── markdown_to_narrow_docx.py
 ```
+
+## 效果展示
+
+- [网络安全教材开卷快查手册.pdf](examples/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E6%95%99%E6%9D%90%E5%BC%80%E5%8D%B7%E5%BF%AB%E6%9F%A5%E6%89%8B%E5%86%8C.pdf)：一份面向开卷考试的教材快查手册示例。
 
 ## 安全约束
 
