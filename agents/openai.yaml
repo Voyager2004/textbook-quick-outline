@@ -1,0 +1,4 @@
+interface:
+  display_name: "Textbook Quick Outline"
+  short_description: "教材 PDF 快查手册生成与 OCR 决策流程"
+  default_prompt: "Use $textbook-quick-outline to generate a printable quick reference manual from a textbook PDF."
